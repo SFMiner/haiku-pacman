@@ -1,0 +1,28 @@
+class_name Tuning
+extends RefCounted
+
+# Loads data/tuning.json. Gameplay numbers live in the data file, not in code.
+
+# === CONSTANTS ===
+
+const PATH: String = "res://data/tuning.json"
+## Logic ticks per second. Movement steps once per tick, so speeds are per tick, not per frame.
+const LOGIC_HZ: int = 60
+
+
+# === FACTORIES ===
+
+static func load_file(path: String = PATH) -> Dictionary:
+	var text: String = FileAccess.get_file_as_string(path)
+	var parsed: Variant = JSON.parse_string(text)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_error("Tuning: cannot parse %s" % path)
+		return {}
+	return parsed
+
+
+## Tiles per logic tick for a speed factor (1.0 = base speed).
+static func tiles_per_tick(data: Dictionary, factor_key: String) -> float:
+	var base: float = float(data.get("base_speed_tiles_per_sec", 0.0))
+	var factor: float = float(data.get(factor_key, 1.0))
+	return base * factor / float(LOGIC_HZ)

@@ -1,0 +1,7 @@
+{
+	"base_speed_tiles_per_sec": 7.5,
+	"pacman_speed_factor": 0.8,
+	"ghost_speed_factor": 0.75,
+	"points_dot": 10,
+	"points_energizer": 50
+}

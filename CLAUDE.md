@@ -32,7 +32,14 @@ Godot 4.5 stable is one level up, at `C:\Users\seanm\Nextcloud2\Gamedev\GodotGam
 ```
 
 - This is the primary check. Expect no `SCRIPT ERROR`, `Parse Error` or `not found`. It also registers `class_name`s and imports assets.
-- No test runner or linter exists yet. When tests are added, record the single-test command here.
+- Headless tests (all suites, listed in `tests/run_tests.gd`). Expect the total checks to match the count in the output:
+
+```powershell
+& "C:\Users\seanm\Nextcloud2\Gamedev\GodotGames\Godot_v4.5-stable_win64.exe" --headless --path "C:\Users\seanm\Nextcloud2\Gamedev\GodotGames\haiku-game" --script res://tests/run_tests.gd
+```
+
+- A run piped through `tail` from the Bash tool never returned (the Godot process was still spinning). The same suite finished in under 40 s when started with `Start-Process ... -RedirectStandardOutput` and a timeout. Prefer that form.
+- Single suite: no runner option yet. Comment out the others in `SUITES` temporarily, or add a filter when the suites grow.
 
 ## Conventions
 

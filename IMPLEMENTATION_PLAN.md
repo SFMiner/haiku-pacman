@@ -62,12 +62,12 @@ items as they're done.
 ## Milestone 2 — Pac-Man movement and dots
 **Goal:** Pac-Man moves through the maze, takes queued turns, eats dots and scores.
 
-- [ ] `scripts/grid_mover.gd` (`class_name GridMover`, pure logic): tile position, direction, progress toward the
-      next tile, `queued_direction`, `can_move(dir)`, `step(delta_ticks)`.
-- [ ] `scripts/pacman.gd`: input → `queued_direction`. Turns are taken at the next tile centre where the new direction is open.
-- [ ] Eating a dot: `Game.score += 10`, `Sfx.play("chomp")`. Power pellet: 50 points.
-- [ ] Movement runs on the fixed logic tick (`_physics_process`, 60 Hz).
-- [ ] `data/tuning.json`: Pac-Man speed (80% of base), base speed in tiles/s.
+- [x] `scripts/grid_mover.gd` (`class_name GridMover`, pure logic): tile position, direction, progress toward the
+      next tile, `queued_direction`, `can_move(dir)`, `step()` (one logic tick, returns true on reaching a tile centre).
+- [x] `scripts/pacman.gd`: input → `queued_direction`. Turns are taken at the next tile centre where the new direction is open.
+- [x] Eating a dot: `Game.score += 10`, `Sfx.play("chomp")`. Power pellet: 50 points.
+- [x] Movement runs on the fixed logic tick (`_physics_process`, 60 Hz).
+- [x] `data/tuning.json`: Pac-Man speed (80% of base), base speed in tiles/s.
 
 **Done when:** Pac-Man turns into corridors before reaching the junction, eats dots, and the score goes up.
 **Tests:** `tests/test_grid_mover.gd` (queued turn is taken only at a centre; blocked turn waits; tunnel wrap).
