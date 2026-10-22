@@ -61,7 +61,8 @@ func test_never_reverses_in_corridor_toward_a_target_behind() -> void:
 	if maze == null:
 		expect(false, "corridor maze parses")
 		return
-	expect(Ghost.pick_toward(maze, Vector2i(2, 1), Vector2i.RIGHT, Vector2i(0, 1)) == Vector2i.RIGHT, "ghost keeps going Right even with the target behind it")
+	# Only a way round would let the ghost keep going, and there is none, so it turns back toward the target.
+	expect(GhostPath.next_step(maze, Vector2i(2, 1), Vector2i.RIGHT, Vector2i(0, 1)) == Vector2i.LEFT, "ghost turns back when the target is behind it and there is no way round")
 
 
 func test_dead_end_reverses() -> void:
@@ -69,7 +70,7 @@ func test_dead_end_reverses() -> void:
 	if maze == null:
 		expect(false, "dead-end maze parses")
 		return
-	expect(Ghost.pick_toward(maze, Vector2i(1, 1), Vector2i.LEFT, Vector2i(0, 1)) == Vector2i.RIGHT, "dead end reverses to Right")
+	expect(GhostPath.next_step(maze, Vector2i(1, 1), Vector2i.LEFT, Vector2i(0, 1)) == Vector2i.RIGHT, "dead end reverses to Right")
 
 
 func test_picks_the_open_direction_closest_to_target() -> void:
@@ -77,17 +78,52 @@ func test_picks_the_open_direction_closest_to_target() -> void:
 	if maze == null:
 		expect(false, "crossroads maze parses")
 		return
-	expect(Ghost.pick_toward(maze, Vector2i(2, 2), Vector2i.RIGHT, Vector2i(2, 5)) == Vector2i.DOWN, "turns Down toward a target below")
-	expect(Ghost.pick_toward(maze, Vector2i(2, 2), Vector2i.RIGHT, Vector2i(5, 2)) == Vector2i.RIGHT, "keeps Right toward a target ahead")
+	expect(GhostPath.next_step(maze, Vector2i(2, 2), Vector2i.RIGHT, Vector2i(2, 5)) == Vector2i.DOWN, "turns Down toward a target below")
+	expect(GhostPath.next_step(maze, Vector2i(2, 2), Vector2i.RIGHT, Vector2i(3, 2)) == Vector2i.RIGHT, "keeps Right toward a target ahead")
 
 
-func test_tie_goes_to_priority_order() -> void:
-	var maze: Maze = _maze(["#####", "##.##", "#...#", "##.##", "#####"])
+func test_ties_keep_going_then_use_priority_order() -> void:
+	# A ring round a wall block: from (1,1) both Right and Down are 3 steps from (3,3).
+	var maze: Maze = _maze(["#####", "#...#", "#.#.#", "#...#", "#####"])
 	if maze == null:
-		expect(false, "tie maze parses")
+		expect(false, "ring maze parses")
 		return
-	# Up (2,1) and Down (2,3) are equally far from (0,2); Up comes first.
-	expect(Ghost.pick_toward(maze, Vector2i(2, 2), Vector2i.RIGHT, Vector2i(0, 2)) == Vector2i.UP, "tie between Up and Down goes to Up")
+	expect(GhostPath.next_step(maze, Vector2i(1, 1), Vector2i.RIGHT, Vector2i(3, 3)) == Vector2i.RIGHT, "a tie keeps the ghost going Right")
+	expect(GhostPath.next_step(maze, Vector2i(1, 1), Vector2i.ZERO, Vector2i(3, 3)) == Vector2i.DOWN, "with no facing, a tie goes to Down before Right")
+
+
+func test_every_open_tile_reaches_a_standing_pacman() -> void:
+	# Regression: the old greedy rule circled forever from about half the tiles on the default maze.
+	for path: String in ["res://data/maze_default.txt", "res://data/maze_classic.txt"]:
+		var maze: Maze = Maze.load_file(path)
+		if maze == null:
+			expect(false, "%s parses" % path)
+			continue
+		var goal: Vector2i = maze.starts["P"]
+		var field: PackedInt32Array = GhostPath.distances(maze, goal)
+		var limit: int = maze.width * maze.height * 2
+		var stuck: int = 0
+		for y: int in maze.height:
+			for x: int in maze.width:
+				var start: Vector2i = Vector2i(x, y)
+				# Skip walled-off blank pockets: no tile in them can reach Pac-Man, ghost or not.
+				if field[y * maze.width + x] == GhostPath.UNREACHED:
+					continue
+				var pos: Vector2i = start
+				var facing: Vector2i = Vector2i.ZERO
+				var reached: bool = false
+				for step: int in limit:
+					if pos == goal:
+						reached = true
+						break
+					var dir: Vector2i = GhostPath.step_with(maze, field, pos, facing)
+					if dir == Vector2i.ZERO:
+						break
+					facing = dir
+					pos = maze.wrap_tile(pos + dir)
+				if not reached:
+					stuck += 1
+		expect(stuck == 0, "%s: every open tile reaches Pac-Man (%d stuck)" % [path.get_file(), stuck])
 
 
 # === TESTS: SCATTER / CHASE CYCLE ===

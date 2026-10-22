@@ -97,6 +97,10 @@ items as they're done.
   - Blinky → Pac-Man tile. Pinky → 4 tiles ahead of Pac-Man. Inky → vector from Blinky through the tile 2 ahead of
     Pac-Man, doubled. Clyde → Pac-Man when more than 8 tiles away, otherwise his corner.
 - [x] Scatter / chase cycle as a `Game`-owned timer, lengths from `tuning.json`. Shortening per level is part of Milestone 6.
+- [x] Fixed after the Milestone 9 check (Sean's "ghosts stop being deadly" report): the greedy turn rule (closest open
+      neighbour by straight-line distance) circled walls forever. With Pac-Man standing still, ghosts stayed 5 to 20 tiles
+      away for minutes. The chase and return turns now use `scripts/ghost_path.gd` (breadth-first distance from the target).
+      A ghost reverses only when the way back is the only closer route. Test: every reachable tile reaches Pac-Man.
 - [x] Known quirk, reproduced on purpose: when Pac-Man faces up, Pinky's target also shifts 4 tiles left (documented
       in `tests`).
 
@@ -182,14 +186,18 @@ survives a restart, on desktop and in the browser.
 ## Milestone 9 — HTML5 release build
 **Goal:** a browser build that plays end to end. This is the release target, not an extra.
 
-- [ ] Run `python ..\..\godot-2d-web-template\check_web_template.py <project>` and pick the matching template zip
-      (2D or 2D + GUI, depending on what the game uses). Point the preset at that named zip.
-- [ ] Export with "Export With Debug" unticked. Confirm the wasm size matches the chosen template.
-- [ ] Scan the project for emoji and deprecated GDScript functions (the lean templates drop them).
-- [ ] Browser smoke test with Playwright (`chromium.launch({channel: 'chrome'})`), checking the console for any
-      `SCRIPT ERROR`: title → play → pause → game over → high score persists after reload.
-- [ ] Audio starts after the first key press (browser autoplay rule).
+- [x] Run `check_web_template.py` and pick the matching template zip. Verdict: 2D template (0 hits for 3D, stripped GUI
+      and deprecated APIs). The preset points at `godot-2d-web-template\godot.web.template_release.wasm32.nothreads.zip`
+      by an absolute path, which only works on this desktop. The laptop path will differ.
+- [x] Export with "Export With Debug" unticked (`export_debug=false`). Wasm is 22,323,523 B, matching the 2D template.
+- [x] Scan for emoji (none) and deprecated GDScript (checker: none).
+- [x] Browser smoke test with Playwright (headless Chrome, `build/web` served locally): no console errors or page errors.
+      Title → Enter → walk → Esc pauses and writes `{"default":40}` to localStorage → reload shows `HIGH SCORE 40`.
+      The idle game-over run: the ghosts caught the standing Pac-Man and the game returned to the title. This run is
+      what found the chase bug above, which is now fixed in the build.
+- [ ] Audio starts after the first key press: no audio errors in the browser, but nobody has listened to it yet.
 - [ ] Publish to GitHub Pages only after Sean confirms where the build should go (default: `docs/`, ask first).
+      Not published. `build/` is in `.gitignore`.
 
 ---
 

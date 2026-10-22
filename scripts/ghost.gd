@@ -132,29 +132,6 @@ func reverse_now() -> void:
 		_mover.queue(-_mover.facing)
 
 
-## Direction at a centre: the open neighbour closest to `goal`, never back unless it's a dead end.
-## Ties go to the first in order up, left, down, right. `through_door` lets eyes pass the ghost door.
-static func pick_toward(maze: Maze, tile: Vector2i, facing: Vector2i, goal: Vector2i, through_door: bool = false) -> Vector2i:
-	var order: Array[Vector2i] = [Vector2i.UP, Vector2i.LEFT, Vector2i.DOWN, Vector2i.RIGHT]
-	var back: Vector2i = -facing
-	var best: Vector2i = Vector2i.ZERO
-	var best_dist: float = 0.0
-	for dir: Vector2i in order:
-		if facing != Vector2i.ZERO and dir == back:
-			continue
-		if not maze.is_passable(tile + dir, through_door):
-			continue
-		var dist: float = float((tile + dir - goal).length_squared())
-		if best == Vector2i.ZERO or dist < best_dist:
-			best = dir
-			best_dist = dist
-	if best != Vector2i.ZERO:
-		return best
-	if facing != Vector2i.ZERO and maze.is_passable(tile + back, through_door):
-		return back
-	return Vector2i.ZERO
-
-
 ## Frightened choice: a random open direction, never back unless it's a dead end.
 static func pick_random(maze: Maze, tile: Vector2i, facing: Vector2i) -> Vector2i:
 	var options: Array[Vector2i] = []
@@ -226,9 +203,9 @@ func _choose_direction(m: GridMover) -> Vector2i:
 			if not _route.is_empty():
 				return _route.pop_front()
 			mode = Mode.ROAMING
-			return pick_toward(_maze, m.tile, m.facing, target)
+			return GhostPath.next_step(_maze, m.tile, m.facing, target)
 		Mode.ROAMING:
-			return pick_toward(_maze, m.tile, m.facing, target)
+			return GhostPath.next_step(_maze, m.tile, m.facing, target)
 		Mode.FRIGHTENED:
 			return pick_random(_maze, m.tile, m.facing)
 		Mode.EATEN:
@@ -239,8 +216,8 @@ func _choose_direction(m: GridMover) -> Vector2i:
 				if not _route.is_empty():
 					return _route.pop_front()
 				mode = Mode.ROAMING
-				return pick_toward(_maze, m.tile, m.facing, target)
-			return pick_toward(_maze, m.tile, m.facing, _home, true)
+				return GhostPath.next_step(_maze, m.tile, m.facing, target)
+			return GhostPath.next_step(_maze, m.tile, m.facing, _home, true)
 	return Vector2i.ZERO
 
 

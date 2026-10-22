@@ -15,7 +15,7 @@ Design: [`GDD.md`](GDD.md). Build order and tests: [`IMPLEMENTATION_PLAN.md`](IM
 - [x] Levels, fruit, lives (Milestone 6)
 - [x] Title screen, HUD, pause, high score (Milestone 7)
 - [x] Procedural sound and polish (Milestone 8)
-- [ ] HTML5 release build (Milestone 9)
+- [x] HTML5 release build (Milestone 9): exported locally to `build/web` (not published yet)
 - [ ] Music (later, after v1)
 
 ## Running
