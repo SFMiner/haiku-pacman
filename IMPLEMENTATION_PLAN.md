@@ -3,7 +3,8 @@
 Derived from `GDD.md` (draft v0.1). Each milestone ends with the game booting and the new feature demoable. Check off
 items as they're done.
 
-**Engine:** Godot 4.5, GDScript (tabs, type hints). **Renderer:** GL Compatibility. **Target:** desktop first.
+**Engine:** Godot 4.5, GDScript (tabs, type hints). **Renderer:** GL Compatibility. **Target:** HTML5 export
+(desktop runs during development). Browser rules are checked from Milestone 0 onward, not saved for the end.
 **Conventions:** the shared Gamedev learning log (`..\..\CLAUDE.md`) applies. Subagents are Haiku only (see `CLAUDE.md`).
 
 **Current state:** scaffold only. `project.godot` still has the template name, no scripts, no scenes, no tests.
@@ -24,6 +25,8 @@ items as they're done.
 
 - [ ] `project.godot`: `config/name="Haiku Pac"`. Window 224 × 288 logical, stretch `canvas_items`, integer scale,
       pixel-art defaults (nearest filter, no mipmaps).
+- [ ] HTML5 export preset: single-threaded (`thread_support=false`), output folder `build/web/` for now (Pages location
+      to be confirmed), "Export With Debug" unticked. Preset points at the matching zip in `godot-2d-web-template\` (see Milestone 9).
 - [ ] Folders: `scripts/`, `scenes/`, `data/`, `tests/`.
 - [ ] Input actions: `move_up`, `move_down`, `move_left`, `move_right` (arrows and WASD), `start` (Enter, Space),
       `pause` (Esc, P).
@@ -138,10 +141,12 @@ items as they're done.
 - [ ] Pause with Esc or P, plus an on-screen Pause/Resume button. Uses `Game.ui_open` (soft pause), so every gameplay
       script checks it and returns early.
 - [ ] Game over screen, then back to title.
-- [ ] High score saved to `user://highscore.json`, read on boot, wrapped in error handling.
+- [ ] High score saved through one `SaveManager` call: `user://highscore.json` on desktop, a `JavaScriptBridge`
+      localStorage branch on web (`OS.has_feature("web")`). Every read and write wrapped in error handling.
+- [ ] On-screen Pause/Resume button (touch and mouse as well as keyboard).
 
 **Done when:** start → play → pause → resume → die → game over → title → start again works, and the high score
-survives a restart.
+survives a restart, on desktop and in the browser.
 **Check:** `Game.ui_open` is respected by every gameplay script. Pause freezes ghosts, Pac-Man and timers.
 
 ---
@@ -157,15 +162,17 @@ survives a restart.
 
 ---
 
-## Milestone 9 — Web export (optional, after desktop is done)
-**Goal:** the game runs in a browser.
+## Milestone 9 — HTML5 release build
+**Goal:** a browser build that plays end to end. This is the release target, not an extra.
 
-- [ ] Export single-threaded (`thread_support=false`). Use GL Compatibility.
-- [ ] Run `python ..\..\godot-2d-web-template\check_web_template.py <project>` and pick the matching template zip.
-      Untick "Export With Debug".
-- [ ] Replace the `user://` high score with a `JavaScriptBridge` localStorage branch.
-- [ ] Browser smoke test: no console `SCRIPT ERROR`, sounds play after the first key press, Pause works.
-- [ ] Only after open question 2 in `GDD.md` is answered yes.
+- [ ] Run `python ..\..\godot-2d-web-template\check_web_template.py <project>` and pick the matching template zip
+      (2D or 2D + GUI, depending on what the game uses). Point the preset at that named zip.
+- [ ] Export with "Export With Debug" unticked. Confirm the wasm size matches the chosen template.
+- [ ] Scan the project for emoji and deprecated GDScript functions (the lean templates drop them).
+- [ ] Browser smoke test with Playwright (`chromium.launch({channel: 'chrome'})`), checking the console for any
+      `SCRIPT ERROR`: title → play → pause → game over → high score persists after reload.
+- [ ] Audio starts after the first key press (browser autoplay rule).
+- [ ] Publish to GitHub Pages only after Sean confirms where the build should go (default: `docs/`, ask first).
 
 ---
 

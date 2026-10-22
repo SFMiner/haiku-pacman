@@ -1,7 +1,7 @@
 # Haiku Pac — Game Design Document (draft v0.1)
 
-Draft 2026-10-22. Not approved. Godot 4.5, GDScript, GL Compatibility, desktop first (web export is a later milestone).
-Working title only. See open question 1 before any public release.
+Draft 2026-10-22. Godot 4.5, GDScript, GL Compatibility. **Target: HTML5 export** (desktop runs are for development only).
+Title: "Haiku Pac" (original name, not the trademarked one).
 
 **Goal:** a faithful-feeling maze-chase game in the spirit of the 1980 arcade classic. Same core loop, same ghost
 personalities, original layout, art and sound.
@@ -53,7 +53,7 @@ power pellets last less time.
 
 ## 5. Scope
 **In v1:** title, one maze layout repeating, four ghosts with the rules above, fruit, lives, extra life, high-score
-save (local file), pause, procedural sound.
+save (local file on desktop, localStorage in the browser), pause, procedural sound, HTML5 export.
 **Out of v1:** multiple maze layouts, music, controller remapping, online scores, a level editor.
 
 ## 6. Technical plan (summary)
@@ -64,13 +64,20 @@ save (local file), pause, procedural sound.
   headless.
 - Soft pause via `Game.ui_open`, the template convention. Timed logic uses a fixed logic tick, not frame time, so
   behaviour doesn't depend on frame rate.
-- High score saved to `user://`. Web builds will need a `JavaScriptBridge` localStorage branch later.
+- **HTML5 is the release target.** Single-threaded export (no COOP/COEP headers needed), GL Compatibility, and the
+  browser-safe rules from the Gamedev log (no emoji, no deprecated APIs, check the export with
+  `check_web_template.py`).
+- High score is saved to `user://` on desktop and to browser localStorage in web builds. Both sit behind one
+  `SaveManager` call, with try/catch around every read and write.
+- Browsers block audio until a key press, so the first key press unlocks sound.
+- A Pause control is on screen, so the game is playable with the mouse or touch as well as the keyboard.
 
-## 7. Open questions for Sean
-1. **Name and trademark.** "Pac-Man" is a Bandai Namco trademark. Keep "Haiku Pac" (or another original name) for any
-   public release? The draft assumes yes.
-2. **Web target.** Should v1 also export to the browser (sims-site style iframe, or GitHub Pages)? If yes, the web
-   milestone follows the sims-site rules (Pause control, Tab/Escape exit).
-3. **Maze.** An original layout (the draft's assumption) or a recreation of the classic maze?
-4. **Sound and music.** Procedural effects only (the draft), or should I add a music track later?
-5. **Difficulty.** Should there be a difficulty option, or keep it as one arcade-style curve?
+## 7. Decisions and open questions
+**Decided (Sean, 2026-10-22):**
+1. **Name:** "Haiku Pac", original art and sound. No Pac-Man trademark.
+2. **Target:** HTML5 export.
+
+**Still open (draft defaults in use until Sean changes them):**
+3. **Maze.** An original layout (default) or a recreation of the classic maze?
+4. **Sound and music.** Procedural effects only (default), or add a music track later?
+5. **Difficulty.** One arcade-style curve (default), or a difficulty option?
