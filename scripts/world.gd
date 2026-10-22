@@ -37,6 +37,7 @@ var _game_over_ticks: int = 0
 var _level_clearing: bool = false
 var _level_clear_ticks: int = 0
 var _dots_at_start: int = 0
+var _pellets_at_start: int = 1
 var _fruit_next: int = 0
 var _fruit_ticks: int = 0
 var _score_seen: int = 0
@@ -58,6 +59,7 @@ func _start_level(level: int) -> void:
 	Game.mode_schedule = ModeSchedule.new(LevelRules.schedule_ticks(_data, level))
 	_build_actors(Maze.load_file(_level_path), level)
 	_dots_at_start = _maze.dot_count()
+	_pellets_at_start = maxi(_maze.pellets_left(), 1)
 	_fruit_next = 0
 	_fruit_ticks = 0
 	_level_clearing = false
@@ -131,6 +133,7 @@ func _physics_process(_delta: float) -> void:
 	if _maze.pellets_left() == 0:
 		_begin_level_clear()
 		return
+	Sfx.siren_progress(float(_maze.pellets_left()) / float(_pellets_at_start))
 	_check_fruit()
 	_check_extra_life()
 	_tick_ghost_house()
@@ -158,6 +161,8 @@ func _begin_level_clear() -> void:
 	_level_clearing = true
 	_level_clear_ticks = Tuning.ticks_for_seconds(float(_data.get("level_clear_seconds", 2.0)))
 	_power.stop()
+	Sfx.siren_stop()
+	Sfx.play("level_clear")
 	_fruit_ticks = 0
 	queue_redraw()
 
@@ -201,6 +206,7 @@ func _check_extra_life() -> void:
 
 func _on_energizer_eaten() -> void:
 	_power.start()
+	Sfx.siren_stop()
 	for ghost: Ghost in _ghosts:
 		ghost.enter_frightened()
 
@@ -208,6 +214,7 @@ func _on_energizer_eaten() -> void:
 func _end_frightened() -> void:
 	for ghost: Ghost in _ghosts:
 		ghost.end_frightened()
+	Sfx.siren_start()
 
 
 func _tick_ghost_house() -> void:
@@ -264,6 +271,8 @@ func _eat_ghost(ghost: Ghost) -> void:
 
 
 func _on_pacman_caught() -> void:
+	Sfx.siren_stop()
+	Sfx.play("death")
 	Game.lives -= 1
 	_pacman.visible = false
 	_power.stop()
@@ -287,6 +296,7 @@ func _reset_positions() -> void:
 	_pacman.reset()
 	_pacman.visible = true
 	_power.stop()
+	Sfx.siren_start()
 	for ghost: Ghost in _ghosts:
 		ghost.reset()
 	_house.reset()

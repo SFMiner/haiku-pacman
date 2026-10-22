@@ -72,6 +72,7 @@ func _start_run(mode: String) -> void:
 	Game.reset_run()
 	Game.high_score = int(_scores.get(mode, 0))
 	Game.ui_open = false
+	Sfx.set_paused(false)
 	_title.hide()
 	_hud.set_paused(false)
 	_hud.show()
@@ -95,6 +96,7 @@ func _toggle_pause() -> void:
 	if _world == null:
 		return
 	Game.ui_open = not Game.ui_open
+	Sfx.set_paused(Game.ui_open)
 	_hud.set_paused(Game.ui_open)
 	if Game.ui_open:
 		_store_high_score()

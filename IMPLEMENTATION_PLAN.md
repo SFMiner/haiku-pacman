@@ -161,9 +161,12 @@ survives a restart, on desktop and in the browser.
 ## Milestone 8 — Procedural sound and polish
 **Goal:** the game sounds finished with no audio files.
 
-- [ ] `scripts/sfx.gd`: generate `AudioStreamWAV` for chomp, power, eat_ghost, death, fruit, level_clear, siren.
-- [ ] Siren pitch rises with the number of dots left.
-- [ ] Screen shake is off by default. Check the game is readable with no effects.
+- [x] `scripts/sfx.gd`: generate `AudioStreamWAV` for chomp, power, eat_ghost, death, fruit, level_clear, siren.
+      Synthesis is in `scripts/sound_synth.gd` (pure, so it is tested headless).
+- [x] Siren pitch rises with the number of dots left. The siren stops while Pac-Man is frightened or dead, and
+      restarts afterwards. Pause mutes everything.
+- [x] No screen shake exists in the game, so there is nothing to switch off. Its absence is the default.
+      Sound was not listened to by me, so the feel of the sounds still needs a playtest.
 
 **Done when:** every event in the GDD has a sound, and nothing plays twice on one event.
 
