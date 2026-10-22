@@ -24,15 +24,14 @@ var _points_energizer: int = 50
 
 # === SETUP ===
 
-func setup(maze: Maze, view: MazeView, start: Vector2i) -> void:
+func setup(maze: Maze, view: MazeView, start: Vector2i, tiles_per_tick: float) -> void:
 	_maze = maze
 	_view = view
 	_start = start
 	var data: Dictionary = Tuning.load_file()
 	_points_dot = int(data.get("points_dot", 10))
 	_points_energizer = int(data.get("points_energizer", 50))
-	var speed: float = Tuning.tiles_per_tick(data, "pacman_speed_factor")
-	_mover = GridMover.new(maze, start, Vector2i.ZERO, speed)
+	_mover = GridMover.new(maze, start, Vector2i.ZERO, tiles_per_tick)
 	queue_redraw()
 
 

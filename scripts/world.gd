@@ -2,17 +2,21 @@ class_name World
 extends Node2D
 
 # Owns the maze view and every actor. Runs the fixed logic tick, the ghost house, power pellets,
-# and the death and restart flow.
+# fruit, levels, and the death and restart flow.
 
 # === CONSTANTS ===
 
-## Pac-Man and a ghost touch when their centres are closer than this, in tiles.
+## Pac-Man and a ghost (or the fruit) touch when their centres are closer than this, in tiles.
 const CAUGHT_DISTANCE: float = 0.5
 const DEFAULT_RELEASE_ORDER: Array = ["B", "K", "I", "C"]
 const DEFAULT_RELEASE_SECONDS: Array = [0.0, 2.0, 5.0, 8.0]
+const FRUIT_COLOUR: Color = Color(1.0, 0.2, 0.2)
+const LEVEL_FLASH_PERIOD_TICKS: int = 10
 
 # === STATE ===
 
+var _level_path: String = ""
+var _data: Dictionary = {}
 var _maze: Maze = null
 var _view: MazeView = null
 var _pacman: Pacman = null
@@ -24,44 +28,74 @@ var _last_released: int = -1
 var _death_ticks: int = 0
 var _death_pause_ticks: int = 0
 var _game_over: bool = false
+var _level_clearing: bool = false
+var _level_clear_ticks: int = 0
+var _dots_at_start: int = 0
+var _fruit_next: int = 0
+var _fruit_ticks: int = 0
+var _score_seen: int = 0
 
 
 # === SETUP ===
 
-func setup(maze: Maze) -> void:
+func setup(level_path: String) -> void:
+	_level_path = level_path
+	_data = Tuning.load_file()
+	_ghost_points = int(_data.get("ghost_points_base", 200))
+	_death_pause_ticks = Tuning.ticks_for_seconds(float(_data.get("death_pause_seconds", 2.0)))
+	_start_level(1)
+
+
+## Builds a fresh maze and every actor for `level`, then resets positions.
+func _start_level(level: int) -> void:
+	Game.level = level
+	Game.mode_schedule = ModeSchedule.new(LevelRules.schedule_ticks(_data, level))
+	_build_actors(Maze.load_file(_level_path), level)
+	_dots_at_start = _maze.dot_count()
+	_fruit_next = 0
+	_fruit_ticks = 0
+	_level_clearing = false
+	_view.visible = true
+	_score_seen = Game.score
+	_reset_positions()
+	queue_redraw()
+
+
+func _build_actors(maze: Maze, level: int) -> void:
+	for child: Node in get_children():
+		remove_child(child)
+		child.free()
 	_maze = maze
-	var data: Dictionary = Tuning.load_file()
 	_view = MazeView.new()
 	add_child(_view)
 	_view.show_maze(maze)
 	_pacman = Pacman.new()
 	add_child(_pacman)
-	_pacman.setup(maze, _view, maze.starts["P"])
+	var pac_speed: float = Tuning.tiles_per_tick_factor(_data, LevelRules.pacman_factor(_data, level))
+	_pacman.setup(maze, _view, maze.starts["P"], pac_speed)
 	_pacman.energizer_eaten.connect(_on_energizer_eaten)
-	_build_ghosts(data)
-	_power = PowerPellet.new(
-		Tuning.ticks_for_seconds(float(data.get("frightened_seconds", 6.0))),
-		Tuning.ticks_for_seconds(float(data.get("frightened_flash_seconds", 2.0))))
-	_ghost_points = int(data.get("ghost_points_base", 200))
-	_death_pause_ticks = Tuning.ticks_for_seconds(float(data.get("death_pause_seconds", 2.0)))
-	_reset_positions()
+	_build_ghosts(level)
+	var frightened_ticks: int = Tuning.ticks_for_seconds(LevelRules.frightened_seconds(_data, level))
+	var flash_ticks: int = Tuning.ticks_for_seconds(float(_data.get("frightened_flash_seconds", 2.0)))
+	_power = PowerPellet.new(frightened_ticks, flash_ticks)
 
 
-func _build_ghosts(data: Dictionary) -> void:
-	var order: Array = data.get("ghost_release_order", DEFAULT_RELEASE_ORDER)
-	var seconds: Array = data.get("ghost_release_seconds", DEFAULT_RELEASE_SECONDS)
-	var speed: float = Tuning.tiles_per_tick(data, "ghost_speed_factor")
+func _build_ghosts(level: int) -> void:
+	var order: Array = _data.get("ghost_release_order", DEFAULT_RELEASE_ORDER)
+	var seconds: Array = _data.get("ghost_release_seconds", DEFAULT_RELEASE_SECONDS)
+	var speed: float = Tuning.tiles_per_tick_factor(_data, LevelRules.ghost_factor(_data, level))
 	var release_ticks: Array[int] = []
 	for i: int in order.size():
 		release_ticks.append(Tuning.ticks_for_seconds(float(seconds[i])))
 	var exit: Vector2i = _maze.starts["B"]
 	var home: Vector2i = _maze.starts["K"]
+	_ghosts = []
 	for id: String in order:
 		var ghost: Ghost = Ghost.new()
 		add_child(ghost)
 		ghost.setup(_maze, id, Ghost.colour_for(id), _maze.starts[id], exit, speed)
 		ghost.set_home(home)
-		ghost.set_speeds(Tuning.tiles_per_tick(data, "ghost_frightened_speed_factor"), Tuning.tiles_per_tick(data, "ghost_eyes_speed_factor"))
+		ghost.set_speeds(Tuning.tiles_per_tick(_data, "ghost_frightened_speed_factor"), Tuning.tiles_per_tick(_data, "ghost_eyes_speed_factor"))
 		_ghosts.append(ghost)
 	_house = GhostHouse.new(release_ticks)
 
@@ -70,6 +104,9 @@ func _build_ghosts(data: Dictionary) -> void:
 
 func _physics_process(_delta: float) -> void:
 	if Game.ui_open or _game_over:
+		return
+	if _level_clearing:
+		_tick_level_clear()
 		return
 	if _death_ticks > 0:
 		_death_ticks -= 1
@@ -82,22 +119,72 @@ func _physics_process(_delta: float) -> void:
 		_end_frightened()
 	_update_targets()
 	_pacman.advance()
+	if _maze.pellets_left() == 0:
+		_begin_level_clear()
+		return
+	_check_fruit()
+	_check_extra_life()
 	_tick_ghost_house()
 	for ghost: Ghost in _ghosts:
 		ghost.flashing = _power.is_flashing()
 		ghost.advance()
 	_check_contacts()
+	queue_redraw()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _game_over and event.is_action_pressed("start") and not event.is_echo():
 		Game.reset_run()
 		_game_over = false
-		_reset_positions()
-		queue_redraw()
+		_start_level(1)
 
 
-# === INTERNAL ===
+# === INTERNAL: LEVELS ===
+
+func _begin_level_clear() -> void:
+	_level_clearing = true
+	_level_clear_ticks = Tuning.ticks_for_seconds(float(_data.get("level_clear_seconds", 2.0)))
+	_power.stop()
+	_fruit_ticks = 0
+	queue_redraw()
+
+
+## The maze flashes, then the next level starts.
+func _tick_level_clear() -> void:
+	_level_clear_ticks -= 1
+	_view.visible = (_level_clear_ticks / LEVEL_FLASH_PERIOD_TICKS) % 2 == 0
+	if _level_clear_ticks <= 0:
+		_start_level(Game.level + 1)
+
+
+# === INTERNAL: FRUIT AND EXTRA LIFE ===
+
+func _check_fruit() -> void:
+	var eaten: int = _dots_at_start - _maze.dot_count()
+	var triggers: Array = _data.get("fruit_dot_triggers", [70, 170])
+	if LevelRules.fruit_spawn_due(eaten, _fruit_next, triggers):
+		_fruit_next += 1
+		_fruit_ticks = Tuning.ticks_for_seconds(float(_data.get("fruit_seconds", 9.0)))
+	if _fruit_ticks <= 0:
+		return
+	_fruit_ticks -= 1
+	var fruit_pos: Vector2 = Vector2(_maze.starts["F"])
+	if _tile_distance(_pacman.position_tiles(), fruit_pos) < CAUGHT_DISTANCE:
+		Game.score += LevelRules.fruit_points(_data, Game.level)
+		_fruit_ticks = 0
+		Sfx.play("fruit")
+
+
+func _check_extra_life() -> void:
+	var before: int = _score_seen
+	_score_seen = Game.score
+	var threshold: int = int(_data.get("extra_life_score", 10000))
+	if LevelRules.extra_life_due(before, Game.score, threshold, Game.extra_life_given):
+		Game.extra_life_given = true
+		Game.lives += 1
+
+
+# === INTERNAL: GHOSTS AND CONTACTS ===
 
 func _on_energizer_eaten() -> void:
 	_power.start()
@@ -167,6 +254,7 @@ func _on_pacman_caught() -> void:
 	Game.lives -= 1
 	_pacman.visible = false
 	_power.stop()
+	_fruit_ticks = 0
 	if Game.lives <= 0:
 		_game_over = true
 		queue_redraw()
@@ -194,5 +282,8 @@ func _reset_positions() -> void:
 # === DRAWING ===
 
 func _draw() -> void:
+	if _fruit_ticks > 0:
+		var centre: Vector2 = (Vector2(_maze.starts["F"]) + Vector2(0.5, 0.5)) * MazeView.TILE_PX
+		draw_circle(centre, 3.5, FRUIT_COLOUR)
 	if _game_over:
 		draw_string(ThemeDB.fallback_font, Vector2(56.0, 150.0), "GAME OVER", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.WHITE)

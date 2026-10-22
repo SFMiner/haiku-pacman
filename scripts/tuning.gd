@@ -36,6 +36,10 @@ static func schedule_ticks(data: Dictionary) -> Array[int]:
 
 ## Tiles per logic tick for a speed factor (1.0 = base speed).
 static func tiles_per_tick(data: Dictionary, factor_key: String) -> float:
+	return tiles_per_tick_factor(data, float(data.get(factor_key, 1.0)))
+
+
+## Tiles per logic tick for a factor given directly (used for per-level speeds).
+static func tiles_per_tick_factor(data: Dictionary, factor: float) -> float:
 	var base: float = float(data.get("base_speed_tiles_per_sec", 0.0))
-	var factor: float = float(data.get(factor_key, 1.0))
 	return base * factor / float(LOGIC_HZ)

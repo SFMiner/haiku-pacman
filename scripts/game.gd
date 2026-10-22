@@ -22,6 +22,8 @@ var level: int = 1:
 		level = value
 		level_changed.emit(level)
 var high_score: int = 0
+## Once per game: the 10,000-point extra life has been given.
+var extra_life_given: bool = false
 ## Scatter/chase cycle. Owned here so it survives deaths and resets only on a new run.
 var mode_schedule: ModeSchedule = ModeSchedule.new(Tuning.schedule_ticks(Tuning.load_file()))
 
@@ -32,4 +34,5 @@ func reset_run() -> void:
 	score = 0
 	lives = 3
 	level = 1
+	extra_life_given = false
 	mode_schedule.reset()

@@ -15,7 +15,7 @@ func _ready() -> void:
 	var world: World = World.new()
 	world.position = MAZE_OFFSET
 	add_child(world)
-	world.setup(maze)
+	world.setup(MAZE_PATH)
 	var shot_path: String = OS.get_environment("HAIKU_SHOT")
 	if shot_path != "":
 		_save_screenshot(shot_path)

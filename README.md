@@ -12,7 +12,7 @@ Design: [`GDD.md`](GDD.md). Build order and tests: [`IMPLEMENTATION_PLAN.md`](IM
 - [x] Ghosts move and leave the house, collisions cost a life (Milestone 3)
 - [x] Ghost AI targeting, scatter/chase cycle (Milestone 4)
 - [x] Power pellets, frightened ghosts, eating ghosts (Milestone 5)
-- [ ] Levels, fruit, lives (Milestone 6)
+- [x] Levels, fruit, lives (Milestone 6)
 - [ ] Title screen, HUD, pause, high score (Milestone 7)
 - [ ] Procedural sound and polish (Milestone 8)
 - [ ] HTML5 release build (Milestone 9)

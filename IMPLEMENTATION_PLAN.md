@@ -124,13 +124,14 @@ items as they're done.
 ## Milestone 6 — Levels, fruit, lives
 **Goal:** the full game loop, with levels and bonuses.
 
-- [ ] Level clear when `Maze.dot_count() == 0`: flash, wait, next level.
-- [ ] Level scaling from `tuning.json`: ghost and Pac-Man speed, frightened time, scatter/chase cycle lengths, with a
+- [x] Level clear when every pellet is gone (dots and energizers, so `Maze.pellets_left() == 0`): the maze flashes, then the next level starts from a fresh maze.
+- [x] Level scaling from `tuning.json`: ghost and Pac-Man speed, frightened time, scatter/chase cycle lengths, with a
       floor.
-- [ ] Fruit: appears after 70 and 170 dots, stays a few seconds, points by level.
-- [ ] Extra life at 10,000 points, once per game.
+- [x] Fruit: appears after 70 and 170 dots, stays a few seconds, points by level.
+- [x] Extra life at 10,000 points, once per game.
 
 **Done when:** you can clear level 1, reach level 2 with faster ghosts, and collect fruit.
+**Status:** all four items are in. Fruit is drawn as a red dot (art later). Scaling values are my starting guesses in `tuning.json`, not from the GDD. The level-clear path was checked in the running game by eating every pellet and reaching level 2 with the maze reloaded; a live play-through with fruit is still to do.
 **Tests:** `tests/test_levels.gd` (scaling values per level, fruit trigger counts, extra-life rule).
 
 ---
