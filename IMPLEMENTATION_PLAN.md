@@ -196,8 +196,8 @@ survives a restart, on desktop and in the browser.
       The idle game-over run: the ghosts caught the standing Pac-Man and the game returned to the title. This run is
       what found the chase bug above, which is now fixed in the build.
 - [ ] Audio starts after the first key press: no audio errors in the browser, but nobody has listened to it yet.
-- [ ] Publish to GitHub Pages only after Sean confirms where the build should go (default: `docs/`, ask first).
-      Not published. `build/` is in `.gitignore`.
+- [x] Publish to GitHub Pages after Sean confirms where the build should go: `haiku-pac/` in sfminer.github.io.
+      Published to https://sfminer.github.io/haiku-pac/ (folder `haiku-pac/` in the sfminer.github.io repo). `build/` is in `.gitignore`.
 
 ---
 
