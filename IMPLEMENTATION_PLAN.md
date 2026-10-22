@@ -43,9 +43,12 @@ items as they're done.
 ## Milestone 1 — Maze from data
 **Goal:** the maze appears from `data/maze.txt`.
 
-- [ ] `data/maze.txt`: 28 × 31 ASCII layout (`#` wall, `.` dot, `o` power pellet, `-` ghost door, space = empty,
-      `P` Pac-Man start, `G` ghost start points, `F` fruit spot).
-- [ ] `scripts/maze.gd` (`class_name Maze`, pure logic): loads the file, exposes `is_wall(tile)`, `is_door(tile)`,
+- [ ] `data/maze_default.txt` (original) and `data/maze_classic.txt` (recreation): 28 × 31 ASCII each (`#` wall,
+      `.` dot, `o` power pellet, `-` ghost door, space = empty, `P` Pac-Man start, `G` ghost start points, `F` fruit
+      spot). Both files must have the same dimensions and start markers.
+- [ ] Classic layout: type it in from a reference the user provides, not from memory. Check it against the dot
+      count the user gives. (If no reference is given, leave `maze_classic.txt` as a stub and ask.)
+- [ ] `scripts/maze.gd` (`class_name Maze`, pure logic): loads a file by mode, exposes `is_wall(tile)`, `is_door(tile)`,
       `tile_kind(tile)`, `size`, `wrap(tile)` (tunnel row wrap), `dot_count()`.
 - [ ] `scripts/maze_view.gd`: draws walls and dots from `Maze` with `_draw`, batched into one draw pass (per the
       Gamedev batching lesson).
@@ -136,7 +139,8 @@ items as they're done.
 ## Milestone 7 — Screens, HUD, pause, high score
 **Goal:** the game can be started, paused, lost and restarted from the menus.
 
-- [ ] Title screen with high score and controls. Start on Enter or Space.
+- [ ] Title screen with high score, controls, and a maze mode choice (Default / Classic). Start on Enter or Space.
+      The choice is stored with the high score (separate high score per mode).
 - [ ] HUD: score, high score, lives icons, level number. Drawn in code.
 - [ ] Pause with Esc or P, plus an on-screen Pause/Resume button. Uses `Game.ui_open` (soft pause), so every gameplay
       script checks it and returns early.
@@ -161,6 +165,13 @@ survives a restart, on desktop and in the browser.
 **Done when:** every event in the GDD has a sound, and nothing plays twice on one event.
 
 ---
+
+## Later — Music (after v1)
+**Goal:** background music. Not part of v1.
+
+- [ ] Choose a music source. Original or properly licensed tracks only. Record the license in `CREDITS.md`.
+- [ ] Music on/off setting, persisted with the high score.
+- [ ] Web: check the track plays after the first key press, the same as sound effects.
 
 ## Milestone 9 — HTML5 release build
 **Goal:** a browser build that plays end to end. This is the release target, not an extra.

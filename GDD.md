@@ -40,7 +40,10 @@ power pellets last less time.
 - **Tunnel:** the middle row wraps left and right. Ghosts slow down inside the tunnel.
 - **Fruit:** one bonus item appears after 70 and 170 dots are eaten. It stays for a few seconds. Points rise with level.
 - **Lives:** 3 at start. Extra life at 10,000 points, once.
-- **Levels:** the mazes repeat after the first. Ghosts speed up and frightened time shrinks as levels rise, down to a
+- **Maze mode:** chosen on the title screen. **Default** is the original layout. **Classic** recreates the classic
+  arcade maze. Each mode uses one layout, repeated every level.
+- **Difficulty:** one arcade-style curve, with no options.
+- **Levels:** the maze repeats each level. Ghosts speed up and frightened time shrinks as levels rise, down to a
   floor.
 
 ## 4. Art and sound (original, no external assets)
@@ -52,13 +55,14 @@ power pellets last less time.
 - **Text:** a bundled pixel font if one is available, otherwise Godot's default font at integer size.
 
 ## 5. Scope
-**In v1:** title, one maze layout repeating, four ghosts with the rules above, fruit, lives, extra life, high-score
+**In v1:** title with maze mode choice (Default or Classic), four ghosts with the rules above, fruit, lives, extra life, high-score
 save (local file on desktop, localStorage in the browser), pause, procedural sound, HTML5 export.
-**Out of v1:** multiple maze layouts, music, controller remapping, online scores, a level editor.
+**Out of v1:** music (planned for later), more than the two maze modes, controller remapping, online scores, a level
+editor.
 
 ## 6. Technical plan (summary)
 - The game is code-driven, following the Gamedev template: a minimal `Main.tscn` builds the maze and entities in code.
-- Maze layout lives in `data/maze.txt` as ASCII (`#` wall, `.` dot, `o` power pellet, `-` ghost door, space = empty).
+- Maze layouts live in `data/maze_default.txt` and `data/maze_classic.txt` as ASCII (`#` wall, `.` dot, `o` power pellet, `-` ghost door, space = empty).
   Speeds, timers and scores live in `data/tuning.json`. Nothing is hard-coded.
 - Movement and AI are pure grid logic (no physics engine). That makes ghost targeting and maze parsing easy to unit-test
   headless.
@@ -76,8 +80,9 @@ save (local file on desktop, localStorage in the browser), pause, procedural sou
 **Decided (Sean, 2026-10-22):**
 1. **Name:** "Haiku Pac", original art and sound. No Pac-Man trademark.
 2. **Target:** HTML5 export.
+3. **Maze:** two modes, Default (original) and Classic (recreation), chosen on the title screen.
+4. **Sound:** procedural effects in v1. Music added later.
+5. **Difficulty:** one arcade-style curve.
 
-**Still open (draft defaults in use until Sean changes them):**
-3. **Maze.** An original layout (default) or a recreation of the classic maze?
-4. **Sound and music.** Procedural effects only (default), or add a music track later?
-5. **Difficulty.** One arcade-style curve (default), or a difficulty option?
+**Caveat on Classic:** the layout is a recreation of a Bandai Namco arcade maze. Keep it for personal and
+development use, or drop it, before any public release. Sean should decide that separately.
