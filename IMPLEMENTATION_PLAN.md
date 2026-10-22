@@ -23,17 +23,17 @@ items as they're done.
 ## Milestone 0 — Project skeleton
 **Goal:** the project boots to an empty window at the right size, with folders and autoloads in place.
 
-- [ ] `project.godot`: `config/name="Haiku Pac"`. Window 224 × 288 logical, stretch `canvas_items`, integer scale,
+- [x] `project.godot`: `config/name="Haiku Pac"`. Window 224 × 288 logical, stretch `canvas_items`, integer scale,
       pixel-art defaults (nearest filter, no mipmaps).
-- [ ] HTML5 export preset: single-threaded (`thread_support=false`), output folder `build/web/` for now (Pages location
+- [x] HTML5 export preset: single-threaded (`thread_support=false`), output folder `build/web/` for now (Pages location
       to be confirmed), "Export With Debug" unticked. Preset points at the matching zip in `godot-2d-web-template\` (see Milestone 9).
-- [ ] Folders: `scripts/`, `scenes/`, `data/`, `tests/`.
-- [ ] Input actions: `move_up`, `move_down`, `move_left`, `move_right` (arrows and WASD), `start` (Enter, Space),
+- [x] Folders: `scripts/`, `scenes/` created. `data/` and `tests/` get created with their first files, since git doesn't track empty folders.
+- [x] Input actions: `move_up`, `move_down`, `move_left`, `move_right` (arrows and WASD), `start` (Enter, Space),
       `pause` (Esc, P).
-- [ ] `scenes/main.tscn`: minimal root with `main.gd` attached. It builds everything else in code.
-- [ ] Autoload `scripts/game.gd` (`Game`): `ui_open: bool`, `score`, `high_score`, `lives`, `level`, and signals
+- [x] `scenes/main.tscn`: minimal root with `main.gd` attached. It builds everything else in code.
+- [x] Autoload `scripts/game.gd` (`Game`): `ui_open: bool`, `score`, `high_score`, `lives`, `level`, and signals
       `score_changed`, `lives_changed`, `level_changed`.
-- [ ] Autoload `scripts/sfx.gd` (`Sfx`): empty stub with `play(name: String)`.
+- [x] Autoload `scripts/sfx.gd` (`Sfx`): empty stub with `play(name: String)`.
 
 **Done when:** the window opens at the right size and closes cleanly.
 **Check:** `--headless --editor --quit-after 250` reports no `SCRIPT ERROR`.
