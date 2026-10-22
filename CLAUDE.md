@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## License
+
+GPL-3.0 (`LICENSE`), because the Classic maze layout is copied from a GPL-3.0 project. Credits in `CREDITS.md`.
+Don't add code or data from other sources without checking their license and recording it there.
+
 ## Goal
 
 Build a Pac-Man clone in Godot 4.5. Design: `GDD.md` (draft, not yet approved). Build order and tests: `IMPLEMENTATION_PLAN.md`.
