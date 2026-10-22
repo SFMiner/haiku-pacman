@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Goal
 
-Build a Pac-Man clone in Godot 4.5.
+Build a Pac-Man clone in Godot 4.5. Design: `GDD.md` (draft, not yet approved). Build order and tests: `IMPLEMENTATION_PLAN.md`.
 
 ## Subagents
 
