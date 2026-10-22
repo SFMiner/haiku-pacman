@@ -5,6 +5,7 @@ extends RefCounted
 # A mover sits on `tile` and travels toward `tile + facing`, with `progress` (0..1) along that edge.
 # Turns are queued and taken at the next tile centre where the new direction is open.
 # Reversing is immediate, as in the arcade, because it keeps the same spot on the path.
+# An optional `chooser` picks the next direction at each centre (used by ghosts).
 
 # === STATE ===
 
@@ -15,6 +16,8 @@ var queued: Vector2i = Vector2i.ZERO
 var progress: float = 0.0
 var speed: float = 0.0
 var ghost: bool = false
+## Called with this mover at a centre (or when stopped). Returns the wanted direction, or ZERO for none.
+var chooser: Callable = Callable()
 
 
 # === SETUP ===
@@ -25,6 +28,14 @@ func _init(maze_ref: Maze, start: Vector2i, start_facing: Vector2i, tiles_per_ti
 	facing = start_facing
 	speed = tiles_per_tick
 	ghost = is_ghost
+
+
+## Puts the mover back on `start` heading `dir`, dropping any queued turn.
+func reset_to(start: Vector2i, dir: Vector2i) -> void:
+	tile = start
+	facing = dir
+	queued = Vector2i.ZERO
+	progress = 0.0
 
 
 # === QUERIES ===
@@ -53,6 +64,7 @@ func queue(dir: Vector2i) -> void:
 ## Advances one logic tick. Returns true on the tick the mover reaches a new tile centre.
 func step() -> bool:
 	if is_stopped():
+		_ask_chooser()
 		if queued != Vector2i.ZERO and can_move(queued):
 			facing = queued
 			queued = Vector2i.ZERO
@@ -69,6 +81,11 @@ func step() -> bool:
 
 
 # === INTERNAL ===
+
+func _ask_chooser() -> void:
+	if chooser.is_valid() and queued == Vector2i.ZERO:
+		queued = chooser.call(self)
+
 
 ## Reverses only when the queued direction is the opposite of facing.
 func _try_reverse() -> void:
@@ -88,6 +105,7 @@ func _try_reverse() -> void:
 
 
 func _choose_direction_at_centre() -> void:
+	_ask_chooser()
 	if queued != Vector2i.ZERO and can_move(queued):
 		facing = queued
 		queued = Vector2i.ZERO

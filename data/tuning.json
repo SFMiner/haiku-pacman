@@ -3,5 +3,8 @@
 	"pacman_speed_factor": 0.8,
 	"ghost_speed_factor": 0.75,
 	"points_dot": 10,
-	"points_energizer": 50
+	"points_energizer": 50,
+	"ghost_release_order": ["B", "K", "I", "C"],
+	"ghost_release_seconds": [0, 2, 5, 8],
+	"death_pause_seconds": 2.0
 }

@@ -21,6 +21,10 @@ static func load_file(path: String = PATH) -> Dictionary:
 	return parsed
 
 
+static func ticks_for_seconds(seconds: float) -> int:
+	return roundi(seconds * float(LOGIC_HZ))
+
+
 ## Tiles per logic tick for a speed factor (1.0 = base speed).
 static func tiles_per_tick(data: Dictionary, factor_key: String) -> float:
 	var base: float = float(data.get("base_speed_tiles_per_sec", 0.0))

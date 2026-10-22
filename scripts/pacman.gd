@@ -1,7 +1,7 @@
 class_name Pacman
 extends Node2D
 
-# Player-controlled Pac-Man. Logic lives in GridMover; this node reads input, eats pellets and draws.
+# Player-controlled Pac-Man. Logic lives in GridMover. The World calls advance() on the logic tick.
 
 # === CONSTANTS ===
 
@@ -13,6 +13,7 @@ const COLOR: Color = Color(1.0, 0.9, 0.1)
 var _maze: Maze = null
 var _view: MazeView = null
 var _mover: GridMover = null
+var _start: Vector2i = Vector2i.ZERO
 var _points_dot: int = 10
 var _points_energizer: int = 50
 
@@ -22,6 +23,7 @@ var _points_energizer: int = 50
 func setup(maze: Maze, view: MazeView, start: Vector2i) -> void:
 	_maze = maze
 	_view = view
+	_start = start
 	var data: Dictionary = Tuning.load_file()
 	_points_dot = int(data.get("points_dot", 10))
 	_points_energizer = int(data.get("points_energizer", 50))
@@ -30,10 +32,19 @@ func setup(maze: Maze, view: MazeView, start: Vector2i) -> void:
 	queue_redraw()
 
 
+func reset() -> void:
+	_mover.reset_to(_start, Vector2i.ZERO)
+	queue_redraw()
+
+
+func position_tiles() -> Vector2:
+	return _mover.position_tiles()
+
+
 # === LOGIC TICK ===
 
-func _physics_process(_delta: float) -> void:
-	if _mover == null or Game.ui_open:
+func advance() -> void:
+	if _mover == null:
 		return
 	_read_input()
 	if _mover.step():

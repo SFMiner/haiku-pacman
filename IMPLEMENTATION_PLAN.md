@@ -77,12 +77,12 @@ items as they're done.
 ## Milestone 3 — Ghosts move
 **Goal:** four ghosts leave the house and roam, without AI targeting yet.
 
-- [ ] `scripts/ghost.gd` (`class_name Ghost`): a `GridMover` with a name, colour and a current mode.
-- [ ] Ghost movement rules: no reversal except on mode change; at each junction pick the open direction by priority
+- [x] `scripts/ghost.gd` (`class_name Ghost`): a `GridMover` with a name, colour and a current mode.
+- [x] Ghost movement rules: no reversal except on mode change; at each junction pick the open direction by priority
       order up, left, down, right.
-- [ ] `scripts/ghost_house.gd`: release timers, one ghost at a time, reading `tuning.json`.
-- [ ] Ghosts kill Pac-Man on contact: `Game.lives -= 1`, emit a death signal.
-- [ ] Death: pause, a short animation, reset all positions. Game over at zero lives.
+- [x] `scripts/ghost_house.gd`: release timers, one ghost at a time, reading `tuning.json`.
+- [x] Ghosts kill Pac-Man on contact: `Game.lives -= 1`, emit a death signal.
+- [x] Death: pause, reset all positions. Game over at zero lives; Start restarts. Not done yet: the short death animation (Pac-Man just hides during the pause), and the game-over text is a placeholder until the Milestone 7 screens.
 
 **Done when:** ghosts leave the house in order, roam, and a collision costs a life and resets.
 **Tests:** `tests/test_ghost_rules.gd` (no reversal; priority order at a 4-way junction; release order).
