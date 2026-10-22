@@ -7,5 +7,10 @@
 	"ghost_release_order": ["B", "K", "I", "C"],
 	"ghost_release_seconds": [0, 2, 5, 8],
 	"death_pause_seconds": 2.0,
-	"scatter_chase_seconds": [7, 20, 7, 20, 5, 20, 5, -1]
+	"scatter_chase_seconds": [7, 20, 7, 20, 5, 20, 5, -1],
+	"frightened_seconds": 6.0,
+	"frightened_flash_seconds": 2.0,
+	"ghost_frightened_speed_factor": 0.5,
+	"ghost_eyes_speed_factor": 1.5,
+	"ghost_points_base": 200
 }

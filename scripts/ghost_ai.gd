@@ -2,6 +2,7 @@ class_name GhostAI
 extends RefCounted
 
 # Chase targets from GDD.md. Pure logic, so it can be tested headless.
+# Inky's pivot gets the same up-facing shift as Pinky's target (Sean, Milestone 4 review).
 # Scatter mode does not use these: the world sends each ghost to its scatter_corner instead.
 
 # === CONSTANTS ===
@@ -26,6 +27,9 @@ static func target_tile(ghost_id: String, pacman_tile: Vector2i, pacman_dir: Vec
 			return pinky
 		"I":
 			var pivot: Vector2i = pacman_tile + pacman_dir * INKY_LOOKAHEAD
+			# Same up-facing quirk as Pinky, applied to the pivot.
+			if pacman_dir == Vector2i.UP:
+				pivot += Vector2i.LEFT * INKY_LOOKAHEAD
 			return pivot * 2 - blinky_tile
 		"C":
 			if Vector2(ghost_tile - pacman_tile).length() > CLYDE_SHY_DISTANCE:

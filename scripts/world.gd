@@ -1,11 +1,12 @@
 class_name World
 extends Node2D
 
-# Owns the maze view and every actor. Runs the fixed logic tick, the ghost house, and the death and restart flow.
+# Owns the maze view and every actor. Runs the fixed logic tick, the ghost house, power pellets,
+# and the death and restart flow.
 
 # === CONSTANTS ===
 
-## Pac-Man and a roaming ghost touch when their centres are closer than this, in tiles.
+## Pac-Man and a ghost touch when their centres are closer than this, in tiles.
 const CAUGHT_DISTANCE: float = 0.5
 const DEFAULT_RELEASE_ORDER: Array = ["B", "K", "I", "C"]
 const DEFAULT_RELEASE_SECONDS: Array = [0.0, 2.0, 5.0, 8.0]
@@ -17,6 +18,8 @@ var _view: MazeView = null
 var _pacman: Pacman = null
 var _ghosts: Array[Ghost] = []
 var _house: GhostHouse = null
+var _power: PowerPellet = null
+var _ghost_points: int = 200
 var _last_released: int = -1
 var _death_ticks: int = 0
 var _death_pause_ticks: int = 0
@@ -34,7 +37,12 @@ func setup(maze: Maze) -> void:
 	_pacman = Pacman.new()
 	add_child(_pacman)
 	_pacman.setup(maze, _view, maze.starts["P"])
+	_pacman.energizer_eaten.connect(_on_energizer_eaten)
 	_build_ghosts(data)
+	_power = PowerPellet.new(
+		Tuning.ticks_for_seconds(float(data.get("frightened_seconds", 6.0))),
+		Tuning.ticks_for_seconds(float(data.get("frightened_flash_seconds", 2.0))))
+	_ghost_points = int(data.get("ghost_points_base", 200))
 	_death_pause_ticks = Tuning.ticks_for_seconds(float(data.get("death_pause_seconds", 2.0)))
 	_reset_positions()
 
@@ -47,10 +55,13 @@ func _build_ghosts(data: Dictionary) -> void:
 	for i: int in order.size():
 		release_ticks.append(Tuning.ticks_for_seconds(float(seconds[i])))
 	var exit: Vector2i = _maze.starts["B"]
+	var home: Vector2i = _maze.starts["K"]
 	for id: String in order:
 		var ghost: Ghost = Ghost.new()
 		add_child(ghost)
 		ghost.setup(_maze, id, Ghost.colour_for(id), _maze.starts[id], exit, speed)
+		ghost.set_home(home)
+		ghost.set_speeds(Tuning.tiles_per_tick(data, "ghost_frightened_speed_factor"), Tuning.tiles_per_tick(data, "ghost_eyes_speed_factor"))
 		_ghosts.append(ghost)
 	_house = GhostHouse.new(release_ticks)
 
@@ -67,12 +78,15 @@ func _physics_process(_delta: float) -> void:
 		return
 	if Game.mode_schedule.tick():
 		_reverse_roaming_ghosts()
+	if _power.tick():
+		_end_frightened()
 	_update_targets()
 	_pacman.advance()
 	_tick_ghost_house()
 	for ghost: Ghost in _ghosts:
+		ghost.flashing = _power.is_flashing()
 		ghost.advance()
-	_check_caught()
+	_check_contacts()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -85,8 +99,20 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # === INTERNAL ===
 
+func _on_energizer_eaten() -> void:
+	_power.start()
+	for ghost: Ghost in _ghosts:
+		ghost.enter_frightened()
+
+
+func _end_frightened() -> void:
+	for ghost: Ghost in _ghosts:
+		ghost.end_frightened()
+
+
 func _tick_ghost_house() -> void:
-	var house_clear: bool = _last_released < 0 or _ghosts[_last_released].mode == Ghost.Mode.ROAMING
+	# The house counts as clear once the last released ghost is out (eyes returning do not block it).
+	var house_clear: bool = _last_released < 0 or _ghosts[_last_released].mode not in [Ghost.Mode.HOUSE, Ghost.Mode.LEAVING]
 	var index: int = _house.tick(house_clear)
 	if index >= 0:
 		_ghosts[index].release()
@@ -118,19 +144,29 @@ func _reverse_roaming_ghosts() -> void:
 		ghost.reverse_now()
 
 
-func _check_caught() -> void:
+## Frightened ghosts are eaten. Roaming ghosts kill Pac-Man.
+func _check_contacts() -> void:
 	var pac_pos: Vector2 = _pacman.position_tiles()
 	for ghost: Ghost in _ghosts:
-		if ghost.mode != Ghost.Mode.ROAMING:
+		if _tile_distance(pac_pos, ghost.position_tiles()) >= CAUGHT_DISTANCE:
 			continue
-		if _tile_distance(pac_pos, ghost.position_tiles()) < CAUGHT_DISTANCE:
+		if ghost.mode == Ghost.Mode.FRIGHTENED:
+			_eat_ghost(ghost)
+		elif ghost.is_deadly():
 			_on_pacman_caught()
 			return
+
+
+func _eat_ghost(ghost: Ghost) -> void:
+	Game.score += _power.eat_ghost(_ghost_points)
+	ghost.eat()
+	Sfx.play("eat_ghost")
 
 
 func _on_pacman_caught() -> void:
 	Game.lives -= 1
 	_pacman.visible = false
+	_power.stop()
 	if Game.lives <= 0:
 		_game_over = true
 		queue_redraw()
@@ -148,6 +184,7 @@ func _tile_distance(a: Vector2, b: Vector2) -> float:
 func _reset_positions() -> void:
 	_pacman.reset()
 	_pacman.visible = true
+	_power.stop()
 	for ghost: Ghost in _ghosts:
 		ghost.reset()
 	_house.reset()

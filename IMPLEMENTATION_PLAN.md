@@ -108,17 +108,16 @@ items as they're done.
 ## Milestone 5 — Power pellets, frightened ghosts, eating ghosts
 **Goal:** the power-pellet loop works end to end.
 
-- [ ] Power pellet: all ghosts enter frightened mode for a timer from `tuning.json`. Ghosts reverse direction once on
+- [x] Power pellet: all ghosts enter frightened mode for a timer from `tuning.json`. Ghosts reverse direction once on
       entering it.
-- [ ] Frightened movement: random choice at junctions, slower speed.
-- [ ] Eating a frightened ghost: score 200, 400, 800, 1600 by chain count within one pellet. The ghost becomes eyes
+- [x] Frightened movement: random choice at junctions, slower speed.
+- [x] Eating a frightened ghost: score 200, 400, 800, 1600 by chain count within one pellet. The ghost becomes eyes
       and returns to the house by a fixed path, then respawns.
-- [ ] Blue ghosts flash near the end of their timer (colour is not the only cue).
-- [ ] Sounds: `power`, `eat_ghost`.
+- [x] Blue ghosts flash near the end of their timer (colour is not the only cue).
+- [x] Sounds: `Sfx.play("power")` and `Sfx.play("eat_ghost")` are called. The sounds themselves come in Milestone 8 (Sfx is still a stub).
 
 **Done when:** a pellet can be used to eat ghosts for the right scores, and the timer ends correctly.
-**Tests:** `tests/test_scoring.gd` (chain values 200/400/800/1600, reset after the pellet ends, extra life crossing
-10,000 once only).
+**Tests:** `tests/test_scoring.gd` (chain values 200/400/800/1600 and the cap, timer ends once, chain resets, flashing, eyes return home). The extra life at 10,000 is Milestone 6 and is not covered yet.
 
 ---
 

@@ -3,6 +3,10 @@ extends Node2D
 
 # Player-controlled Pac-Man. Logic lives in GridMover. The World calls advance() on the logic tick.
 
+# === SIGNALS ===
+
+signal energizer_eaten
+
 # === CONSTANTS ===
 
 const RADIUS_PX: float = 3.5
@@ -84,9 +88,11 @@ func _on_tile_entered(tile: Vector2i) -> void:
 	_view.erase_tile(tile)
 	if code == Maze.TILE_DOT:
 		Game.score += _points_dot
+		Sfx.play("chomp")
 	elif code == Maze.TILE_ENERGIZER:
 		Game.score += _points_energizer
-	Sfx.play("chomp")
+		energizer_eaten.emit()
+		Sfx.play("power")
 
 
 # === DRAWING ===

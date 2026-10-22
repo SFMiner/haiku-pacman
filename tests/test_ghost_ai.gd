@@ -43,6 +43,9 @@ func test_inky_doubles_the_vector_through_the_pivot() -> void:
 	# Pivot is 2 ahead of Pac-Man (12,10). Doubled from Blinky (4,4): (2*12-4, 2*10-4) = (20,16).
 	var target: Vector2i = GhostAI.target_tile("I", Vector2i(10, 10), Vector2i.RIGHT, Vector2i(4, 4), Vector2i(1, 1))
 	expect(target == Vector2i(20, 16), "Inky targets twice the Blinky-to-pivot vector")
+	# Facing up: pivot is (10,8), shifted 2 left to (8,8). Doubled from Blinky (4,4): (12,12).
+	var up_target: Vector2i = GhostAI.target_tile("I", Vector2i(10, 10), Vector2i.UP, Vector2i(4, 4), Vector2i(1, 1))
+	expect(up_target == Vector2i(12, 12), "Inky's pivot shifts 2 left when Pac-Man faces up")
 
 
 func test_clyde_chases_when_far_and_retreats_when_near() -> void:
