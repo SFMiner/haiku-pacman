@@ -82,7 +82,7 @@ items as they're done.
       order up, left, down, right.
 - [x] `scripts/ghost_house.gd`: release timers, one ghost at a time, reading `tuning.json`.
 - [x] Ghosts kill Pac-Man on contact: `Game.lives -= 1`, emit a death signal.
-- [x] Death: pause, reset all positions. Game over at zero lives; Start restarts. Not done yet: the short death animation (Pac-Man just hides during the pause), and the game-over text is a placeholder until the Milestone 7 screens.
+- [x] Death: pause, reset all positions. Game over at zero lives; Start restarts. Not done yet: the short death animation (Pac-Man just hides during the pause). The game-over message is drawn on the maze and goes to the title screen after a countdown (Milestone 7).
 
 **Done when:** ghosts leave the house in order, roam, and a collision costs a life and resets.
 **Tests:** `tests/test_ghost_rules.gd` (no reversal; priority order at a 4-way junction; release order).
@@ -139,15 +139,18 @@ items as they're done.
 ## Milestone 7 — Screens, HUD, pause, high score
 **Goal:** the game can be started, paused, lost and restarted from the menus.
 
-- [ ] Title screen with high score, controls, and a maze mode choice (Default / Classic). Start on Enter or Space.
-      The choice is stored with the high score (separate high score per mode).
-- [ ] HUD: score, high score, lives icons, level number. Drawn in code.
-- [ ] Pause with Esc or P, plus an on-screen Pause/Resume button. Uses `Game.ui_open` (soft pause), so every gameplay
+- [x] Title screen with high score, controls, and a maze mode choice (Default / Classic). Start on Enter or Space.
+      The choice is stored with the high score (separate high score per mode). `scripts/title_screen.gd`.
+- [x] HUD: score, high score, lives icons, level number. Drawn in code. `scripts/hud.gd`.
+- [x] Pause with Esc or P, plus an on-screen Pause/Resume button. Uses `Game.ui_open` (soft pause), so every gameplay
       script checks it and returns early.
-- [ ] Game over screen, then back to title.
-- [ ] High score saved through one `SaveManager` call: `user://highscore.json` on desktop, a `JavaScriptBridge`
-      localStorage branch on web (`OS.has_feature("web")`). Every read and write wrapped in error handling.
-- [ ] On-screen Pause/Resume button (touch and mouse as well as keyboard).
+- [x] Game over screen, then back to title. The World counts down `game_over_seconds` (tuning.json), then emits
+      `run_finished`.
+- [x] High score saved through `SaveManager` (`scripts/save_manager.gd`): `user://highscore.json` on desktop, a
+      `JavaScriptBridge` localStorage branch on web. Saved on a new record at the end of a run, on pause, and on window close.
+      Desktop checked across a restart. The web branch is not run in a browser yet (Milestone 9 export check).
+- [x] On-screen Pause/Resume button. It is a mouse-clickable `Button`, so touch works through the browser's mouse
+      emulation. Not tested on a touch device yet.
 
 **Done when:** start → play → pause → resume → die → game over → title → start again works, and the high score
 survives a restart, on desktop and in the browser.

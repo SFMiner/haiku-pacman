@@ -13,7 +13,7 @@ Design: [`GDD.md`](GDD.md). Build order and tests: [`IMPLEMENTATION_PLAN.md`](IM
 - [x] Ghost AI targeting, scatter/chase cycle (Milestone 4)
 - [x] Power pellets, frightened ghosts, eating ghosts (Milestone 5)
 - [x] Levels, fruit, lives (Milestone 6)
-- [ ] Title screen, HUD, pause, high score (Milestone 7)
+- [x] Title screen, HUD, pause, high score (Milestone 7)
 - [ ] Procedural sound and polish (Milestone 8)
 - [ ] HTML5 release build (Milestone 9)
 - [ ] Music (later, after v1)

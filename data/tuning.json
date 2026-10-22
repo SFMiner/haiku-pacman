@@ -17,6 +17,7 @@
   8
  ],
  "death_pause_seconds": 2.0,
+ "game_over_seconds": 3.0,
  "scatter_chase_seconds": [
   7,
   20,

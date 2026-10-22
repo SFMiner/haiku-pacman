@@ -47,4 +47,11 @@ GDScript and Godot conventions come from the shared Gamedev learning log (`..\..
 
 ## Architecture
 
-None to document yet. When scripts and scenes appear, add the big-picture structure here: autoloads, scene flow, and how the main loop is wired.
+- `scenes/main.tscn` is a bare Node2D; `scripts/main.gd` builds everything in code. Flow: title screen → a run → game over → title.
+  `main.gd` owns the high score table, the pause toggle and the HUD.
+- Autoloads: `Game` (`scripts/game.gd`: score, lives, level, `maze_mode`, `ui_open` soft pause) and `Sfx` (stub until M8).
+- `World` (`scripts/world.gd`) is one run: it is freed and rebuilt on each level, and it runs the fixed 60 Hz logic tick.
+  Pac-Man, ghosts, the ghost house, power pellets, fruit and level rules are pure logic classes (RefCounted), so tests run headless.
+- Every gameplay script returns early while `Game.ui_open` is true. Pause, title and game over all use that flag.
+- Numbers live in `data/tuning.json` (via `Tuning`). Mazes are text files in `data/`, loaded by `Maze`.
+- High scores: `SaveManager` (`scripts/save_manager.gd`), one number per maze mode.

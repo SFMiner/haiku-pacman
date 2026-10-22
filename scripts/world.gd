@@ -4,6 +4,11 @@ extends Node2D
 # Owns the maze view and every actor. Runs the fixed logic tick, the ghost house, power pellets,
 # fruit, levels, and the death and restart flow.
 
+# === SIGNALS ===
+
+## Emitted when the game-over pause ends. main.gd then returns to the title screen.
+signal run_finished
+
 # === CONSTANTS ===
 
 ## Pac-Man and a ghost (or the fruit) touch when their centres are closer than this, in tiles.
@@ -28,6 +33,7 @@ var _last_released: int = -1
 var _death_ticks: int = 0
 var _death_pause_ticks: int = 0
 var _game_over: bool = false
+var _game_over_ticks: int = 0
 var _level_clearing: bool = false
 var _level_clear_ticks: int = 0
 var _dots_at_start: int = 0
@@ -103,7 +109,10 @@ func _build_ghosts(level: int) -> void:
 # === LOGIC TICK ===
 
 func _physics_process(_delta: float) -> void:
-	if Game.ui_open or _game_over:
+	if Game.ui_open:
+		return
+	if _game_over:
+		_tick_game_over()
 		return
 	if _level_clearing:
 		_tick_level_clear()
@@ -132,11 +141,15 @@ func _physics_process(_delta: float) -> void:
 	queue_redraw()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if _game_over and event.is_action_pressed("start") and not event.is_echo():
-		Game.reset_run()
-		_game_over = false
-		_start_level(1)
+# === INTERNAL: GAME OVER ===
+
+## Counts down the game-over message, then tells main.gd the run is finished.
+func _tick_game_over() -> void:
+	_game_over_ticks -= 1
+	if _game_over_ticks > 0:
+		return
+	set_physics_process(false)
+	run_finished.emit()
 
 
 # === INTERNAL: LEVELS ===
@@ -257,6 +270,7 @@ func _on_pacman_caught() -> void:
 	_fruit_ticks = 0
 	if Game.lives <= 0:
 		_game_over = true
+		_game_over_ticks = Tuning.ticks_for_seconds(float(_data.get("game_over_seconds", 3.0)))
 		queue_redraw()
 		return
 	_death_ticks = _death_pause_ticks
