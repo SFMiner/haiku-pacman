@@ -43,16 +43,16 @@ items as they're done.
 ## Milestone 1 — Maze from data
 **Goal:** the maze appears from `data/maze.txt`.
 
-- [ ] `data/maze_default.txt` (original) and `data/maze_classic.txt` (recreation): 28 × 31 ASCII each (`#` wall,
+- [x] `data/maze_default.txt` (original) and `data/maze_classic.txt` (recreation): 28 × 31 ASCII each (`#` wall,
       `.` dot, `o` power pellet, `-` ghost door, space = empty, `P` Pac-Man start, `G` ghost start points, `F` fruit
       spot). Both files must have the same dimensions and start markers.
-- [ ] Classic layout: type it in from a reference the user provides, not from memory. Check it against the dot
-      count the user gives. (If no reference is given, leave `maze_classic.txt` as a stub and ask.)
-- [ ] `scripts/maze.gd` (`class_name Maze`, pure logic): loads a file by mode, exposes `is_wall(tile)`, `is_door(tile)`,
+- [x] Classic layout: taken from bobeff/pacman (GPL-3.0), checked against the arcade counts (240 dots, 4 energizers).
+      Credited in `CREDITS.md`. Default layout: original, see `CREDITS.md`.
+- [x] `scripts/maze.gd` (`class_name Maze`, pure logic): loads a file by mode, exposes `is_wall(tile)`, `is_door(tile)`,
       `tile_kind(tile)`, `size`, `wrap(tile)` (tunnel row wrap), `dot_count()`.
-- [ ] `scripts/maze_view.gd`: draws walls and dots from `Maze` with `_draw`, batched into one draw pass (per the
+- [x] `scripts/maze_view.gd`: draws walls and dots from `Maze` with `_draw`, batched into one draw pass (per the
       Gamedev batching lesson).
-- [ ] Dots and pellets are removed as eaten, via a `Maze` method, not by freeing nodes.
+- [x] Dots and pellets are removed as eaten, via `Maze.eat()` and `MazeView.erase_tile()`, not by freeing nodes.
 
 **Done when:** the maze draws correctly and the dot count matches a value written by hand in the test.
 **Tests:** `tests/test_maze.gd`. Load the file, check dimensions, wall count, dot count and tunnel wrap.
