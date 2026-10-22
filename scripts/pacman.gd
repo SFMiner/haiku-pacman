@@ -41,6 +41,15 @@ func position_tiles() -> Vector2:
 	return _mover.position_tiles()
 
 
+func current_tile() -> Vector2i:
+	return _mover.tile
+
+
+## Direction Pac-Man is moving; ZERO when stopped against a wall.
+func current_facing() -> Vector2i:
+	return _mover.facing
+
+
 # === LOGIC TICK ===
 
 func advance() -> void:

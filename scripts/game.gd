@@ -22,6 +22,8 @@ var level: int = 1:
 		level = value
 		level_changed.emit(level)
 var high_score: int = 0
+## Scatter/chase cycle. Owned here so it survives deaths and resets only on a new run.
+var mode_schedule: ModeSchedule = ModeSchedule.new(Tuning.schedule_ticks(Tuning.load_file()))
 
 
 # === PUBLIC API ===
@@ -30,3 +32,4 @@ func reset_run() -> void:
 	score = 0
 	lives = 3
 	level = 1
+	mode_schedule.reset()

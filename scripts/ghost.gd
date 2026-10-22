@@ -1,9 +1,10 @@
 class_name Ghost
 extends Node2D
 
-# One ghost. Waits in the house, leaves along a fixed route, then roams.
-# Roaming picks directions by fixed priority (up, left, down, right), with no reversing.
-# Milestone 4 replaces the priority with target-based choice.
+# One ghost. Waits in the house, leaves along a fixed route, then roams toward `target`.
+# At each centre it takes the open direction closest to the target (ties: up, left, down, right).
+# It never reverses, except at a dead end or when the world asks for a reversal on a mode change.
+# The world sets `target` before each logic tick (chase target, or scatter corner).
 
 # === ENUMS ===
 
@@ -18,6 +19,7 @@ const RADIUS_PX: float = 4.0
 var ghost_id: String = ""
 var colour: Color = Color.WHITE
 var mode: Mode = Mode.HOUSE
+var target: Vector2i = Vector2i.ZERO
 var _maze: Maze = null
 var _mover: GridMover = null
 var _start: Vector2i = Vector2i.ZERO
@@ -64,15 +66,34 @@ func position_tiles() -> Vector2:
 	return _mover.position_tiles()
 
 
-## Roaming direction at a centre: first open of up, left, down, right, never back unless it's a dead end.
-static func pick_roaming(maze: Maze, tile: Vector2i, facing: Vector2i) -> Vector2i:
+func current_tile() -> Vector2i:
+	return _mover.tile
+
+
+## Mode change: a roaming ghost turns back at its next opportunity.
+func reverse_now() -> void:
+	if mode == Mode.ROAMING and not _mover.is_stopped():
+		_mover.queue(-_mover.facing)
+
+
+## Direction at a centre: the open neighbour closest to `target`, never back unless it's a dead end.
+## Ties go to the first in order up, left, down, right.
+static func pick_toward(maze: Maze, tile: Vector2i, facing: Vector2i, goal: Vector2i) -> Vector2i:
 	var order: Array[Vector2i] = [Vector2i.UP, Vector2i.LEFT, Vector2i.DOWN, Vector2i.RIGHT]
 	var back: Vector2i = -facing
+	var best: Vector2i = Vector2i.ZERO
+	var best_dist: float = 0.0
 	for dir: Vector2i in order:
 		if facing != Vector2i.ZERO and dir == back:
 			continue
-		if maze.is_passable(tile + dir):
-			return dir
+		if not maze.is_passable(tile + dir):
+			continue
+		var dist: float = float((tile + dir - goal).length_squared())
+		if best == Vector2i.ZERO or dist < best_dist:
+			best = dir
+			best_dist = dist
+	if best != Vector2i.ZERO:
+		return best
 	if facing != Vector2i.ZERO and maze.is_passable(tile + back):
 		return back
 	return Vector2i.ZERO
@@ -123,7 +144,7 @@ func _choose_direction(m: GridMover) -> Vector2i:
 			return _route.pop_front()
 		mode = Mode.ROAMING
 	if mode == Mode.ROAMING:
-		return pick_roaming(_maze, m.tile, m.facing)
+		return pick_toward(_maze, m.tile, m.facing, target)
 	return Vector2i.ZERO
 
 

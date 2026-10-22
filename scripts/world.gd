@@ -65,6 +65,9 @@ func _physics_process(_delta: float) -> void:
 		if _death_ticks == 0:
 			_reset_positions()
 		return
+	if Game.mode_schedule.tick():
+		_reverse_roaming_ghosts()
+	_update_targets()
 	_pacman.advance()
 	_tick_ghost_house()
 	for ghost: Ghost in _ghosts:
@@ -88,6 +91,31 @@ func _tick_ghost_house() -> void:
 	if index >= 0:
 		_ghosts[index].release()
 		_last_released = index
+
+
+## Chase target, or scatter corner while the schedule is in scatter mode.
+func _update_targets() -> void:
+	var pac_tile: Vector2i = _pacman.current_tile()
+	var pac_dir: Vector2i = _pacman.current_facing()
+	var blinky_tile: Vector2i = _blinky().current_tile()
+	var scatter: bool = Game.mode_schedule.is_scatter()
+	for ghost: Ghost in _ghosts:
+		if scatter:
+			ghost.target = GhostAI.scatter_corner(ghost.ghost_id)
+		else:
+			ghost.target = GhostAI.target_tile(ghost.ghost_id, pac_tile, pac_dir, blinky_tile, ghost.current_tile())
+
+
+func _blinky() -> Ghost:
+	for ghost: Ghost in _ghosts:
+		if ghost.ghost_id == "B":
+			return ghost
+	return _ghosts[0]
+
+
+func _reverse_roaming_ghosts() -> void:
+	for ghost: Ghost in _ghosts:
+		ghost.reverse_now()
 
 
 func _check_caught() -> void:

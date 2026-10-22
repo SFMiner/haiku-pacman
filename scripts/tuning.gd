@@ -25,6 +25,15 @@ static func ticks_for_seconds(seconds: float) -> int:
 	return roundi(seconds * float(LOGIC_HZ))
 
 
+## Scatter/chase phase lengths in ticks. A negative second value becomes -1 (forever).
+static func schedule_ticks(data: Dictionary) -> Array[int]:
+	var phases: Array[int] = []
+	for seconds: Variant in data.get("scatter_chase_seconds", []):
+		var value: float = float(seconds)
+		phases.append(-1 if value < 0.0 else ticks_for_seconds(value))
+	return phases
+
+
 ## Tiles per logic tick for a speed factor (1.0 = base speed).
 static func tiles_per_tick(data: Dictionary, factor_key: String) -> float:
 	var base: float = float(data.get("base_speed_tiles_per_sec", 0.0))

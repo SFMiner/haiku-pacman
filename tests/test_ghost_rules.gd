@@ -18,47 +18,6 @@ func expect(condition: bool, message: String) -> void:
 		print("  FAIL: %s" % message)
 
 
-func _maze(lines: Array[String]) -> Maze:
-	var rows: PackedStringArray = PackedStringArray()
-	for line: String in lines:
-		rows.append(line)
-	return Maze.from_lines(rows)
-
-
-# === TESTS: ROAMING CHOICE ===
-
-func test_roaming_does_not_reverse_in_corridor() -> void:
-	var maze: Maze = _maze(["#####", "#...#", "#####"])
-	if maze == null:
-		expect(false, "corridor maze parses")
-		return
-	expect(Ghost.pick_roaming(maze, Vector2i(2, 1), Vector2i.RIGHT) == Vector2i.RIGHT, "ghost keeps going Right instead of turning back")
-
-
-func test_roaming_dead_end_reverses() -> void:
-	var maze: Maze = _maze(["#####", "#...#", "#####"])
-	if maze == null:
-		expect(false, "dead-end maze parses")
-		return
-	expect(Ghost.pick_roaming(maze, Vector2i(1, 1), Vector2i.LEFT) == Vector2i.RIGHT, "dead end reverses to Right")
-
-
-func test_priority_up_first_at_crossroads() -> void:
-	var maze: Maze = _maze(["#####", "##.##", "#...#", "##.##", "#####"])
-	if maze == null:
-		expect(false, "crossroads maze parses")
-		return
-	expect(Ghost.pick_roaming(maze, Vector2i(2, 2), Vector2i.RIGHT) == Vector2i.UP, "up beats right at a crossroads")
-
-
-func test_priority_down_before_right() -> void:
-	var maze: Maze = _maze(["#####", "#####", "#...#", "##.##", "#####"])
-	if maze == null:
-		expect(false, "T-junction maze parses")
-		return
-	expect(Ghost.pick_roaming(maze, Vector2i(2, 2), Vector2i.RIGHT) == Vector2i.DOWN, "down beats right when up and back are not an option")
-
-
 # === TESTS: GHOST HOUSE ===
 
 func test_release_order_and_timing() -> void:

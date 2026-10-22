@@ -10,7 +10,7 @@ Design: [`GDD.md`](GDD.md). Build order and tests: [`IMPLEMENTATION_PLAN.md`](IM
 - [x] Maze from data, both layouts, rendering, headless tests (Milestone 1)
 - [x] Pac-Man movement, queued turns, dots and energizers, score (Milestone 2)
 - [x] Ghosts move and leave the house, collisions cost a life (Milestone 3)
-- [ ] Ghost AI targeting (Milestone 4)
+- [x] Ghost AI targeting, scatter/chase cycle (Milestone 4)
 - [ ] Power pellets, frightened ghosts (Milestone 5)
 - [ ] Levels, fruit, lives (Milestone 6)
 - [ ] Title screen, HUD, pause, high score (Milestone 7)

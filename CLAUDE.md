@@ -38,7 +38,7 @@ Godot 4.5 stable is one level up, at `C:\Users\seanm\Nextcloud2\Gamedev\GodotGam
 & "C:\Users\seanm\Nextcloud2\Gamedev\GodotGames\Godot_v4.5-stable_win64.exe" --headless --path "C:\Users\seanm\Nextcloud2\Gamedev\GodotGames\haiku-game" --script res://tests/run_tests.gd
 ```
 
-- A run piped through `tail` from the Bash tool never returned (the Godot process was still spinning). The same suite finished in under 40 s when started with `Start-Process ... -RedirectStandardOutput` and a timeout. Prefer that form.
+- After adding a new `class_name` script, run the editor scan before the tests. Until the scan registers it, the test run gets "Identifier not found" parse errors and can hang (the process spins). Start runs with `Start-Process ... -RedirectStandardOutput` plus a timeout, not a piped Bash command.
 - Single suite: no runner option yet. Comment out the others in `SUITES` temporarily, or add a filter when the suites grow.
 
 ## Conventions

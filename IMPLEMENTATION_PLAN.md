@@ -92,12 +92,12 @@ items as they're done.
 ## Milestone 4 — Ghost AI targeting
 **Goal:** each ghost's chase behaviour matches the GDD.
 
-- [ ] `scripts/ghost_ai.gd` (pure logic, `class_name GhostAI`): `target_tile(ghost_name, pacman_tile, pacman_dir,
-      blinky_tile, scatter_corner, distance)`.
+- [x] `scripts/ghost_ai.gd` (pure logic, `class_name GhostAI`): `target_tile(ghost_name, pacman_tile, pacman_dir,
+      blinky_tile, ghost_tile)`, plus `scatter_corner(ghost_id)` for scatter mode and `pick_toward` for the turn choice.
   - Blinky → Pac-Man tile. Pinky → 4 tiles ahead of Pac-Man. Inky → vector from Blinky through the tile 2 ahead of
     Pac-Man, doubled. Clyde → Pac-Man when more than 8 tiles away, otherwise his corner.
-- [ ] Scatter / chase cycle as a `Game`-owned timer, lengths from `tuning.json`, shortening per level.
-- [ ] Known quirk, reproduced on purpose: when Pac-Man faces up, Pinky's target also shifts 4 tiles left (documented
+- [x] Scatter / chase cycle as a `Game`-owned timer, lengths from `tuning.json`. Shortening per level is part of Milestone 6.
+- [x] Known quirk, reproduced on purpose: when Pac-Man faces up, Pinky's target also shifts 4 tiles left (documented
       in `tests`).
 
 **Done when:** each ghost chases the right target in each mode.
